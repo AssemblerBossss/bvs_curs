@@ -36,6 +36,8 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header, const u_char
         std::cout << "\tIP Header: \n";
         std::cout << "\tSource IP Address:  " << inet_ntoa(*(struct in_addr *)&ipHeader->saddr) << std::endl;
         std::cout << "\tDestination IP Address:  " << inet_ntoa(*(struct in_addr *)&ipHeader->daddr) << std::endl;
+        std::cout << "\tTotal Length:  " << ntohs(ipHeader->tot_len) << std::endl;
+        std::cout << "\tData Length:  " << ntohs(ipHeader->tot_len) - ipHeader->ihl * 4 << std::endl;
     }
 
     std::cout << std::string(50, '-') << std::endl; // Разделитель между пакетами
