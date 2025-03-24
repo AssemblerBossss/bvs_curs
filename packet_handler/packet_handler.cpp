@@ -50,7 +50,7 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header,
         switch (ipHeader->protocol) {
             case IPPROTO_TCP:  {
                 struct tcphdr* tcpHeader = (struct tcphdr*)(packet +
-                                                            sizeof(struct ether_header) + sizeof(iphdr));
+                                            sizeof(struct ether_header) + sizeof(iphdr));
                 std::cout << "\t\tTCP Protocol" << std::endl;
                 std::cout << "\t\t  Source Port:  "
                           << ntohs(tcpHeader->source) << std::endl;
@@ -61,7 +61,7 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header,
 
             case IPPROTO_UDP: {
                 auto* updHeader = (struct udphdr*)(packet +
-                                                   sizeof(struct ether_header) + sizeof(iphdr));
+                                   sizeof(struct ether_header) + sizeof(iphdr));
                 std::cout << "\t\tUDP Protocol" << std::endl;
                 std::cout << "\t\t  Source Port:  "
                           << ntohs(updHeader->source) << std::endl;
