@@ -22,6 +22,7 @@
 #include <netinet/udp.h>
 #include <netinet/tcp.h>
 #include <netinet/ip_icmp.h>
+#include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <pcap.h>
