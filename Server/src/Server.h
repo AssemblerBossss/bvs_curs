@@ -17,6 +17,9 @@ namespace Net {
         void stop();
 
     private:
+        // Настраивает сокет сервера в соответствии с выбранным протоколом
+        void setup_socket();
+
         // Основной цикл прослушивания для TCP-сервера
         void tcp_listen();
 
@@ -32,7 +35,16 @@ namespace Net {
         // Рассылает сообщение всем известным UDP-клиентам, кроме отправителя
         void broadcast_udp(const std::string& message, sockaddr_in* sender = nullptr);
 
+        // Порт сервера
         uint16_t port_;
+
+        // Протокол работы ("tcp" или "udp")
+        std::string protocol_;
+
+        // Дескриптор серверного сокета
+        int server_socket_;
+
+        // Флаг работы сервера
         bool is_running_;
 
         // Список дескрипторов подключенных TCP-клиентов
