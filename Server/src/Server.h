@@ -53,6 +53,8 @@ namespace Net {
         // Список адресов UDP-клиентов
         std::vector<sockaddr_in> udp_clients_;
 
+        std::unique_ptr<std::thread> listener_thread_;
+
     };
 }
 
