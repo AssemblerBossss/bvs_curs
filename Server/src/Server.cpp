@@ -173,11 +173,23 @@ namespace Net {
             }
         }
 
+        /// Основной цикл прослушивания UDP-cooбщений
+        void Server::udp_listen() {
+            char buffer[1024];
+            sockaddr_in client_addr;
+            socklen_t client_len = sizeof(client_addr);
 
-
-
-
-
+            while (is_running_) {
+                while (is_running_) {
+                    ssize_t bytes_received = recvfrom(server_socket_, buffer, sizeof(buffer) - 1, 0,
+                                                      reinterpret_cast<sockaddr*>(&client_addr), &client_len);
+                    if (bytes_received > 0) {
+                        buffer[bytes_received] = '\n';
+                        broadcast_udp(buffer, &client_addr);
+                    }
+                }
+            }
+        }
 
 
 
