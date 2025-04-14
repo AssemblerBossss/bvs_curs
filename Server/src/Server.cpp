@@ -5,8 +5,7 @@
 
 namespace Net {
 
-
-// Для преобразования из строки
+        // Для преобразования из строки
         Protocol parse_protocol(std::string_view str) {
             if (str == "tcp" || str == "TCP") return Protocol::TCP;
             if (str == "udp" || str == "UDP") return Protocol::UDP;
@@ -41,8 +40,6 @@ namespace Net {
         Server::~Server() {
             stop();
         }
-
-/*void Net::Server:read_config*/
 
         /// Настраивает сокет в соответствии с выбранным протоколом
         void Server::setup_socket() {
@@ -190,10 +187,32 @@ namespace Net {
             }
         }
 
+        /// Отправляет сообщение всем UDP-клиентам, кроме отправителя
+        /// @param message Сообщение для отправки
+        /// @param sender_socket Сокет отправителя
+        void Server::broadcast_udp(const std::string &message, sockaddr_in *sender) {
+            if (sender) {
+                // Проверка, известен ли отправитель
+                auto it = std::find_if(udp_clients_.begin(), udp_clients_.end(),
+                                       [sender](const sockaddr_in& client) {
+                                           return client.sin_addr.s_addr == sender->sin_addr.s_addr &&
+                                                  client.sin_port == sender->sin_port;
+                                       });
 
-        
+                // Если не найден, добавить в список клиентов
+                if (it == udp_clients_.end()) {
+                    udp_clients_.push_back(*sender);
+                }
+            }
 
-
-
+            for (const auto& client : udp_clients_) {
+                if (!sender ||
+                    client.sin_addr.s_addr != sender->sin_addr.s_addr ||
+                    client.sin_port != sender->sin_port) {
+                    sendto(server_socket_, message.c_str(), message.length(), 0,
+                           reinterpret_cast<const sockaddr*>(&client), sizeof(client));
+                }
+            }
+        }
 
 };

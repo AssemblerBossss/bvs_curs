@@ -1,5 +1,5 @@
 #include "Headers.h"
-#include <filesystem>
+
 #ifndef CURSOV_CONFIG_H
 #define CURSOV_CONFIG_H
 
@@ -7,7 +7,7 @@ bool file_exists_and_readable(const std::string& filename) {
     std::filesystem::path file_path(filename);
 
     return std::filesystem::exists(file_path) &&           // Проверка существования файла
-           std::filesystem::is_regular_file(file_path) &&  // Обычный файл (а не директория или сокет)
+           std::filesystem::is_regular_file(file_path) &&  // Исключает каталоги, устройства и т.д.;
            (access(filename.c_str(), R_OK) == 0);  // Проверка, доступен ли файл для чтения текущим пользователем
 }
 
