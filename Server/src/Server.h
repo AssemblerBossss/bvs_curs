@@ -5,9 +5,14 @@
 
 namespace Net {
 
+    enum class Protocol {
+        TCP,
+        UDP
+    };
+
     class Server {
     public:
-        Server(uint16_t port, const std::string& protocol = "tcp");
+        Server(uint16_t port, Protocol protocol = Protocol::TCP);
         ~Server();
 
         // Запускает сервер (начинает прослушивание порта)
@@ -39,7 +44,7 @@ namespace Net {
         uint16_t port_;
 
         // Протокол работы ("tcp" или "udp")
-        std::string protocol_;
+        Protocol protocol_;
 
         // Дескриптор серверного сокета
         int server_socket_;
@@ -48,7 +53,7 @@ namespace Net {
         bool is_running_;
 
         // Список дескрипторов подключенных TCP-клиентов
-        std::vector<int> tcp_clients;
+        std::vector<int> tcp_clients_;
 
         // Список адресов UDP-клиентов
         std::vector<sockaddr_in> udp_clients_;

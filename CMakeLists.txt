@@ -8,6 +8,12 @@ add_executable(cursov #main.cpp
         Headers.h
         packet_handler/packet_handler.cpp
 )
+add_executable(Server
+        Headers.h
+        Server/src/Server.h,
+        Server/src/Server.c
+)
+
 
 
 target_link_libraries(cursov pcap)
