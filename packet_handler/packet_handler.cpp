@@ -23,56 +23,59 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header,
                     const u_char* packet) {
     struct ether_header* etherHeader = (struct ether_header*)packet;
 
+    if (ntohs(etherHeader->ether_type) != ETHERTYPE_IP) {
+        return; // Не IP — ничего не выводим
+    }
+
+    struct iphdr* ipHeader = (struct iphdr*)(packet + sizeof(struct ether_header));
+    int protocol = ipHeader->protocol;
+
+    // Проверка: если не TCP и не UDP — игнорируем
+    if (protocol != IPPROTO_TCP && protocol != IPPROTO_UDP) {
+        return;
+    }
+
+    // Теперь можно выводить всё, так как это IP + TCP или UDP
     std::cout << "Ethernet Header: \n";
     std::cout << "  Source Address:  "
               << get_mac_address(etherHeader->ether_shost) << std::endl;
     std::cout << "  Destination Address:  "
               << get_mac_address(etherHeader->ether_dhost) << std::endl;
 
-    // ntohs (Network TO Host Short) выполняет преобразование 16-битного числа
-    // (например, порта или длины пакета) из сетевого порядка байт (big-endian)
-    // в порядок байт хоста (host byte order).
+    std::cout << "\tIP Header: \n";
+    std::cout << "\t  Source IP Address:  "
+              << inet_ntoa(*(struct in_addr *)&ipHeader->saddr) << std::endl;
+    std::cout << "\t  Destination IP Address:  "
+              << inet_ntoa(*(struct in_addr *)&ipHeader->daddr) << std::endl;
+    std::cout << "\t  Total Length:  "
+              << ntohs(ipHeader->tot_len) << std::endl;
+    std::cout << "\t  Data Length:  "
+              << ntohs(ipHeader->tot_len) - ipHeader->ihl * 4 << std::endl;
 
-    if (ntohs(etherHeader->ether_type) == ETHERTYPE_IP) {
-        struct iphdr* ipHeader = (struct iphdr*)(packet +
-                                                 sizeof(struct ether_header));
+    switch (protocol) {
+        case IPPROTO_TCP:  {
+            struct tcphdr* tcpHeader = (struct tcphdr*)(packet +
+                                                        sizeof(struct ether_header) + sizeof(iphdr));
+            std::cout << "\t\tTCP Protocol" << std::endl;
+            std::cout << "\t\t  Source Port:  "
+                      << ntohs(tcpHeader->source) << std::endl;
+            std::cout << "\t\t  Destination Port:  "
+                      << ntohs(tcpHeader->dest) << std::endl;
+            break;
+        }
 
-        std::cout << "\tIP Header: \n";
-        std::cout << "\t  Source IP Address:  "
-                  << inet_ntoa(*(struct in_addr *)&ipHeader->saddr) << std::endl;
-        std::cout << "\t  Destination IP Address:  "
-                  << inet_ntoa(*(struct in_addr *)&ipHeader->daddr) << std::endl;
-        std::cout << "\t  Total Length:  "
-                  << ntohs(ipHeader->tot_len) << std::endl;
-        std::cout << "\t  Data Length:  "
-                  << ntohs(ipHeader->tot_len) - ipHeader->ihl * 4 << std::endl;
-
-        switch (ipHeader->protocol) {
-            case IPPROTO_TCP:  {
-                struct tcphdr* tcpHeader = (struct tcphdr*)(packet +
-                                            sizeof(struct ether_header) + sizeof(iphdr));
-                std::cout << "\t\tTCP Protocol" << std::endl;
-                std::cout << "\t\t  Source Port:  "
-                          << ntohs(tcpHeader->source) << std::endl;
-                std::cout << "\t\t  Destination Port:  "
-                          << ntohs(tcpHeader->dest) << std::endl;
-                break;
-            }
-
-            case IPPROTO_UDP: {
-                auto* updHeader = (struct udphdr*)(packet +
-                                   sizeof(struct ether_header) + sizeof(iphdr));
-                std::cout << "\t\tUDP Protocol" << std::endl;
-                std::cout << "\t\t  Source Port:  "
-                          << ntohs(updHeader->source) << std::endl;
-                std::cout << "\t\t  Destination Port:  "
-                          << ntohs(updHeader->dest) << std::endl;
-                break;
-            }
-            default:
-                break;
+        case IPPROTO_UDP: {
+            auto* udpHeader = (struct udphdr*)(packet +
+                                               sizeof(struct ether_header) + sizeof(iphdr));
+            std::cout << "\t\tUDP Protocol" << std::endl;
+            std::cout << "\t\t  Source Port:  "
+                      << ntohs(udpHeader->source) << std::endl;
+            std::cout << "\t\t  Destination Port:  "
+                      << ntohs(udpHeader->dest) << std::endl;
+            break;
         }
     }
+
     std::cout << std::string(50, '-') << std::endl;
 }
 
@@ -81,7 +84,7 @@ int main() {
     pcap_t *handle;  // Дескриптор для захвата пакетов
 
     // Открываем сетевой интерфейс для захвата пакетов
-    handle = pcap_open_live("wlp0s20f3", BUFSIZ, 1, 1000, errbuf);
+    handle = pcap_open_live("enxd60d1cddb2fe", BUFSIZ, 1, 1000, errbuf);
     if (handle == nullptr) {
         std::cerr << "Could not open device: " << errbuf << std::endl;
         return 1;

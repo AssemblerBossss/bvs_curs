@@ -61,6 +61,9 @@ namespace Net {
         std::unique_ptr<std::thread> listener_thread_;
 
     };
+
+    std::string to_string(Protocol protocol);
+    Protocol parse_protocol(std::string_view str);
 }
 
 #endif //CURSOV_SERVER_H

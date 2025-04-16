@@ -1,4 +1,4 @@
-#include "Headers.h"
+#include "../Headers.h"
 
 #ifndef CURSOV_CONFIG_H
 #define CURSOV_CONFIG_H
