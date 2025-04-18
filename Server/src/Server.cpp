@@ -5,26 +5,6 @@
 
 namespace Net {
 
-        // Для преобразования из строки
-        Protocol parse_protocol(std::string_view str) {
-            if (str == "tcp" || str == "TCP") return Protocol::TCP;
-            if (str == "udp" || str == "UDP") return Protocol::UDP;
-            throw std::invalid_argument("Invalid protocol: " + std::string(str));
-        }
-
-        /// Преобразует Protocol в строку
-        /// @param protocol Протокол
-        /// @return Строковое представление ("TCP" или "UDP")
-        std::string to_string(Protocol protocol) {
-            switch (protocol) {
-                case Protocol::TCP:
-                    return "TCP";
-                case Protocol::UDP:
-                    return "UDP";
-            }
-            return "UNKNOWN";
-        }
-
         /// Конструктор сервера
         /// @param port Порт, на котором будет работать сервер
         /// @param protocol Протокол (TCP или UDP)

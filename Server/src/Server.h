@@ -2,13 +2,10 @@
 #define CURSOV_SERVER_H
 #include "../../Headers.h"
 #include <cstdint>
+#include "../../utilities/protocol.h"
+
 
 namespace Net {
-
-    enum class Protocol {
-        TCP,
-        UDP
-    };
 
     class Server {
     public:
@@ -62,8 +59,6 @@ namespace Net {
 
     };
 
-    std::string to_string(Protocol protocol);
-    Protocol parse_protocol(std::string_view str);
 }
 
 #endif //CURSOV_SERVER_H

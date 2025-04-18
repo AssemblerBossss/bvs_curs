@@ -8,7 +8,7 @@ int main() {
 
         // Получаем порт и протокол из конфигурации
         uint16_t port = std::stoi(config.at("port"));
-        Net::Protocol protocol = Net::parse_protocol(config.at("protocol"));
+        Protocol protocol = parse_protocol(config.at("protocol"));
 
         Net::Server server(port, protocol);
         server.start();

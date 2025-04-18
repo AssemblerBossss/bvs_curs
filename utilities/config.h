@@ -3,7 +3,7 @@
 #ifndef CURSOV_CONFIG_H
 #define CURSOV_CONFIG_H
 
-bool file_exists_and_readable(const std::string& filename) {
+inline bool file_exists_and_readable(const std::string& filename) {
     std::filesystem::path file_path(filename);
 
     return std::filesystem::exists(file_path) &&           // Проверка существования файла
@@ -12,7 +12,7 @@ bool file_exists_and_readable(const std::string& filename) {
 }
 
 
-std::unordered_map<std::string, std::string> read_config_file(const std::string& filename) {
+inline std::unordered_map<std::string, std::string> read_config_file(const std::string& filename) {
     if (!file_exists_and_readable(filename)) {
         throw std::runtime_error("Файл конфигурации недоступен или не существует: " + filename);
     }
