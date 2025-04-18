@@ -74,5 +74,21 @@ void Net::Client::runUDP() {
 }
 
 bool Net::Client::send_message(const std::string &message) {
-    if (!is_connected || so)
+    if (!is_connected || sock < 0) {
+        std::cerr << "Соединение не установлено!\n";
+        return false;
+    }
+
+    if (this->protocol == Protocol::UDP) {
+        ssize_t sent = sendto(sock, message.c_str(), message.size(), 0, (sockaddr*)&server_addr, sizeof(server_addr));
+
+        if (sent < 0) {
+            std::cerr << "Ошибка отправки UDP-сообщения\n";
+            return false;
+        }
+
+
+    }
+
+
 }
