@@ -4,7 +4,9 @@
 /**
  * @brief Конструктор. Устанавливает стандартное время жизни для записей.
  */
-CommutationTable::CommutationTable() : row_life_time(10) {}
+CommutationTable::CommutationTable() {
+    CommutationTable::row_life_time = 10;
+}
 
 /**
  * @brief Вставить новую запись в таблицу на указанный порт.
@@ -109,6 +111,6 @@ void CommutationTable::print() const {
  * @brief Установить новое значение времени жизни для новых/обновлённых записей.
  * @param seconds Время жизни в секундах.
  */
-void CommutationTable::set_life_time() {
+void CommutationTable::set_life_time(int seconds) {
     row_life_time = seconds > 0 ? seconds : 10;
 }

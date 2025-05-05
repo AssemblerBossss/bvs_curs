@@ -60,11 +60,11 @@ public:
      * @brief Установить новое значение времени жизни для новых и обновляемых записей.
      * @param seconds Новое значение времени жизни.
      */
-    static void set_life_time();
+    static void set_life_time(int seconds);
 
 private:
     std::map<int, std::list<TableEntry>> table; ///< Таблица: порт → список записей
-    static int row_life_time;                          ///< Значение времени жизни по умолчанию
+    static int row_life_time;              ///< Значение времени жизни по умолчанию
     mutable std::mutex tableMutex;              ///< Мьютекс для синхронизации доступа
 };
 

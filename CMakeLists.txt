@@ -37,6 +37,11 @@ add_executable( Commutation_table
         CommutationTable/Utils.cpp
 )
 
+target_include_directories(Commutation_table PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/CommutationTable
+        ${CMAKE_CURRENT_SOURCE_DIR}  # для PacketHandler.h, config.h, Headers.h
+)
+
 target_include_directories(packet_sniffer PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/packet_handler
         ${CMAKE_CURRENT_SOURCE_DIR}  # для PacketHandler.h, config.h, Headers.h
