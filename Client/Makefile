@@ -13,9 +13,8 @@ TARGET = client_app
 
 # Все исходные файлы (можно расширить)
 SRCS = main.cpp \
-       $(SRC_DIR)/client.cpp \
-       $(UTIL_DIR)/config.cpp \
-       $(UTIL_DIR)/protocol.cpp
+       $(SRC_DIR)/Client.cpp \
+
 
 # Генерация object-файлов
 OBJS = $(SRCS:.cpp=.o)

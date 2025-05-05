@@ -87,8 +87,47 @@ bool Net::Client::send_message(const std::string &message) {
             return false;
         }
 
+        char buffer[1024] = {};
 
+        socklen_t len = sizeof(server_addr);
+        ssize_t received = recvfrom(sock, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr *>(&server_addr), &len);
+
+        if (received < 0) {
+            std::cerr << "Ошибка получения UDP-ответа\n";
+            return true;
+        }
+
+        std::cout << "UDP: Ответ сервера: " << buffer << std::endl;
+        return true;
     }
 
+    if (this->protocol == Protocol::TCP) {
+        ssize_t sent = send(sock, message.c_str(), message.size(), 0);
 
+        if (sent < 0) {
+            std::cerr << "Ошбика отправки TCP-сообщения\n";
+        }
+        char buffer[1024] = {};
+        ssize_t received = recv(sock, buffer, sizeof(buffer), 0);
+        if (received < 0) {
+            std::cerr << "Ошибка получения TCP-ответа\n";
+            return false;
+        }
+
+        std::cout << "TCP: Ответ сервера: " << buffer << std::endl;
+        return true;
+
+    }
+    return true;
+}
+
+
+void Net::Client::run() {
+    if (protocol == Protocol::TCP) {
+        //runTCP();
+    } else if (protocol == Protocol::UDP) {
+        runUDP();
+    } else {
+        std::cerr << "Неизвестный протокол: " << to_string(protocol) << ". Используйте TCP или UDP.\n";
+    }
 }

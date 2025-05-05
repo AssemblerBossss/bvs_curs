@@ -20,7 +20,7 @@ namespace Net {
         int sock = -1;
         sockaddr_in server_addr{};
 
-        void runTCP();
+        //void runTCP();
         void runUDP();
 
     public:

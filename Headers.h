@@ -27,11 +27,8 @@
 #include <unistd.h>
 #include <pcap.h>
 #include <iomanip>
-#include <sstream>
-#include <fstream>
-#include <algorithm>
-#include <chrono>
 #include <sys/stat.h>
+#include <list>
 
 
 // Общие константы

@@ -25,6 +25,16 @@ target_link_libraries(server
 # ============ Executable: packet_sniffer ============
 add_executable(packet_sniffer
         packet_handler/packet_handler.cpp
+
+)
+
+add_executable( Commutation_table
+        CommutationTable/CommutationTable.h
+        CommutationTable/CommutationTable.cpp
+        CommutationTable/Stats.h
+        CommutationTable/Stats.cpp
+        CommutationTable/Utils.h
+        CommutationTable/Utils.cpp
 )
 
 target_include_directories(packet_sniffer PRIVATE
