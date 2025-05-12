@@ -58,6 +58,8 @@ namespace Net {
                     throw std::runtime_error("Listen failed: " + std::string(strerror(errno)));
                 }
             }
+            std::cout << "Server started on port: " << port_ << " using " << to_string(protocol_) << " protocol." << std::endl;
+
         }
 
         /// Запускает сервер и начинает прослушивание клиентов
@@ -66,6 +68,7 @@ namespace Net {
 
             setup_socket();
             is_running_ = true;
+            std::cout << "Server is now running..." << std::endl;
 
             std::cout << std::uppercase
                       << to_string(protocol_) << " server started on port: "
@@ -118,7 +121,8 @@ namespace Net {
                     continue;
                 }
                 tcp_clients_.push_back(client_socket);
-                std::thread(&Server::handle_tcp_client, this, client_socket, client_addr);
+                std::thread client_thread(&Server::handle_tcp_client, this, client_socket, client_addr);
+                client_thread.detach(); // Отсоединяем поток, чтобы он мог работать независимо
             }
         }
 
@@ -132,6 +136,16 @@ namespace Net {
                 if (bytes_received <= 0) break;
 
                 buffer[bytes_received] = '\0';
+
+                // Логирование полученного сообщения
+                std::cout << "Received message from "
+                          << inet_ntoa(client_addr.sin_addr) << ": " << buffer << std::endl;
+
+                // Отправляем подтверждение клиенту
+                std::string ack_message = "OK";
+                send(client_socket, ack_message.c_str(), ack_message.length(), 0);
+
+                // Рассылаем сообщение другим клиентам
                 broadcast_tcp(buffer, client_socket);
             }
             close(client_socket);
@@ -147,6 +161,7 @@ namespace Net {
                 if (client != sender_socket) {
                     send(client, message.c_str(), message.length(), 0);
                 }
+
             }
         }
 
