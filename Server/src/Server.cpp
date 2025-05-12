@@ -5,9 +5,6 @@
 
 namespace Net {
 
-        /// Конструктор сервера
-        /// @param port Порт, на котором будет работать сервер
-        /// @param protocol Протокол (TCP или UDP)
         Server::Server(uint16_t port, Protocol protocol)
         : port_(port), protocol_(protocol), is_running_(false), server_socket_(-1) {
 
@@ -16,12 +13,10 @@ namespace Net {
             }
         }
 
-        /// Деструктор сервера, автоматически останавливает сервер при уничтожении объекта
         Server::~Server() {
             stop();
         }
 
-        /// Настраивает сокет в соответствии с выбранным протоколом
         void Server::setup_socket() {
             // 1. Создание сокета
             int socket_type = (protocol_ == Protocol::TCP) ? SOCK_STREAM : SOCK_DGRAM;
@@ -62,7 +57,6 @@ namespace Net {
 
         }
 
-        /// Запускает сервер и начинает прослушивание клиентов
         void Server::start() {
             if (is_running_) return;
 
@@ -82,7 +76,6 @@ namespace Net {
             }
         }
 
-        /// Останавливает сервер и освобождает все ресурсы
         void Server::stop() {
             if (!is_running_) return;
 
@@ -105,7 +98,6 @@ namespace Net {
             std::cout << "Server stopped.\n";
         }
 
-        /// Основной цикл прослушивания TCP-подключений
         void Server::tcp_listen() {
             while (is_running_) {
                 sockaddr_in client_addr;
@@ -126,9 +118,6 @@ namespace Net {
             }
         }
 
-        /// Обрабатывает подключение одного TCP-клиента
-        /// @param client_socket Дескриптор клиента
-        /// @param client_addr Адрес клиента
         void Server::handle_tcp_client(int client_socket, sockaddr_in client_addr) {
             char buffer[1024];
             while (is_running_) {
@@ -153,9 +142,6 @@ namespace Net {
             tcp_clients_.erase(std::remove(tcp_clients_.begin(), tcp_clients_.end(), client_socket), tcp_clients_.end());
         }
 
-        /// Отправляет сообщение всем TCP-клиентам, кроме отправителя
-        /// @param message Сообщение для отправки
-        /// @param sender_socket Сокет отправителя
         void Server::broadcast_tcp(const std::string &message, int sender_socket) {
             for (int client: tcp_clients_) {
                 if (client != sender_socket) {
@@ -165,7 +151,6 @@ namespace Net {
             }
         }
 
-    /// Основной цикл прослушивания UDP-cooбщений
         void Server::udp_listen() {
             char buffer[1024];
             sockaddr_in client_addr;
@@ -182,9 +167,6 @@ namespace Net {
             }
         }
 
-        /// Отправляет сообщение всем UDP-клиентам, кроме отправителя
-        /// @param message Сообщение для отправки
-        /// @param sender_socket Сокет отправителя
         void Server::broadcast_udp(const std::string &message, sockaddr_in *sender) {
             if (sender) {
                 // Проверка, известен ли отправитель
