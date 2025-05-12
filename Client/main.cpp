@@ -58,12 +58,21 @@ int main(int argc, char* argv[]) {
 
     client.run();
 
-    std::cout << "Введите сообщения для отправки (\"exit\" для выхода):\n";
+    std::cout << "Введите сообщения для отправки (\"exit\" для выхода):" << std::endl;
     std::string msg;
+    
+    std::cout << "Введите сообщение: ";
+    std::cout.flush();
+
     while (std::getline(std::cin, msg)) {
         if (msg == "exit") break;
         client.send_message(msg);
+        std::cout << "Введите сообщение: ";
+        std::cout.flush();
     }
+
+    // Корректное завершение работы клиента
+    client.stop();
 
 #ifdef _WIN32
     WSACleanup();

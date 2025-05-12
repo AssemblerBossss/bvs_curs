@@ -1,4 +1,5 @@
 #include "Client.h"
+#include <fcntl.h>  // Для fcntl
 
 void Net::Client::loadArgs(int argc, char *argv[]) {
     std::string server_ip_, server_port_, client_port_, protocol_;
@@ -51,7 +52,7 @@ void Net::Client::load_config(const std::string &filename) {
 }
 
 void Net::Client::runUDP() {
-    sock = socket(AF_INET, SOCK_DGRAM, 0);  // используй член класса
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (sock < 0) {
         std::cerr << "Ошибка создания UDP сокета\n";
@@ -76,6 +77,10 @@ void Net::Client::runUDP() {
 
     is_connected = true;
     std::cout << "UDP: Готов к отправке сообщений\n";
+    
+    // Запуск потока для получения сообщений
+    running = true;
+    receiver_thread = std::make_unique<std::thread>(&Client::receive_messages, this);
 }
 
 
@@ -92,18 +97,8 @@ bool Net::Client::send_message(const std::string &message) {
             std::cerr << "Ошибка отправки UDP-сообщения\n";
             return false;
         }
-
-        char buffer[1024] = {};
-
-        socklen_t len = sizeof(server_addr);
-        ssize_t received = recvfrom(sock, buffer, sizeof(buffer), 0, reinterpret_cast<sockaddr *>(&server_addr), &len);
-
-        if (received < 0) {
-            std::cerr << "Ошибка получения UDP-ответа\n";
-            return true;
-        }
-
-        std::cout << "UDP: Ответ сервера: " << buffer << std::endl;
+        
+        // Только отправляем сообщение, ответ обрабатывает receive_messages
         return true;
     }
 
@@ -111,18 +106,12 @@ bool Net::Client::send_message(const std::string &message) {
         ssize_t sent = send(sock, message.c_str(), message.size(), 0);
 
         if (sent < 0) {
-            std::cerr << "Ошбика отправки TCP-сообщения\n";
-        }
-        char buffer[1024] = {};
-        ssize_t received = recv(sock, buffer, sizeof(buffer), 0);
-        if (received < 0) {
-            std::cerr << "Ошибка получения TCP-ответа\n";
+            std::cerr << "Ошибка отправки TCP-сообщения\n";
             return false;
         }
-
-        std::cout << "TCP: Ответ сервера: " << buffer << std::endl;
+        
+        // Только отправляем сообщение, ответ обрабатывает receive_messages
         return true;
-
     }
     return true;
 }
@@ -158,4 +147,120 @@ void Net::Client::runTCP() {
     this->server_addr = server_addr;
     is_connected = true;
     std::cout << "TCP: Подключено к серверу\n";
+    
+    // Запуск потока для получения сообщений
+    running = true;
+    receiver_thread = std::make_unique<std::thread>(&Client::receive_messages, this);
+}
+
+// Реализация метода receive_messages
+void Net::Client::receive_messages() {
+    char buffer[1024];
+    
+    // Пока клиент работает
+    while (running) {
+        if (!is_connected || sock < 0) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            continue;
+        }
+        
+        if (protocol == Protocol::TCP) {
+            // Установка неблокирующего режима для сокета
+            int flags = fcntl(sock, F_GETFL, 0);
+            fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+            
+            // Попытка получить данные
+            ssize_t received = recv(sock, buffer, sizeof(buffer) - 1, 0);
+            
+            if (received > 0) {
+                buffer[received] = '\0';
+                std::string message(buffer);
+                
+                // Очищаем текущую строку перед выводом нового сообщения
+                std::cout << "\r                                                          \r"; // Стираем текущую строку
+                std::cout.flush();
+                
+                // Проверяем, что это не подтверждение "OK"
+                if (message == "OK") {
+                    // Это подтверждение отправки, просто выводим его
+                    std::cout << "[Сервер] Сообщение доставлено" << std::endl;
+                } else {
+                    // Это сообщение от другого клиента
+                    std::cout << "[Получено] " << message << std::endl;
+                }
+                
+                // После вывода сообщения снова показываем приглашение
+                std::cout << "Введите сообщение: ";
+                std::cout.flush();
+            } else if (received == 0) {
+                // Соединение закрыто
+                std::cerr << "\n[Система] Соединение с сервером закрыто" << std::endl;
+                is_connected = false;
+                break;
+            } else {
+                // Ошибка или нет данных (EWOULDBLOCK/EAGAIN)
+                if (errno != EWOULDBLOCK && errno != EAGAIN) {
+                    std::cerr << "\n[Ошибка] При получении данных: " << strerror(errno) << std::endl;
+                    is_connected = false;
+                    break;
+                }
+            }
+        } else if (protocol == Protocol::UDP) {
+            // UDP работает аналогично, но используется recvfrom
+            sockaddr_in sender_addr;
+            socklen_t sender_len = sizeof(sender_addr);
+            
+            // Установка неблокирующего режима
+            int flags = fcntl(sock, F_GETFL, 0);
+            fcntl(sock, F_SETFL, flags | O_NONBLOCK);
+            
+            ssize_t received = recvfrom(sock, buffer, sizeof(buffer) - 1, 0, 
+                                        reinterpret_cast<sockaddr*>(&sender_addr), &sender_len);
+            
+            if (received > 0) {
+                buffer[received] = '\0';
+                std::string message(buffer);
+                
+                // Очищаем текущую строку перед выводом нового сообщения
+                std::cout << "\r                                                          \r"; // Стираем текущую строку
+                std::cout.flush();
+                
+                if (message == "OK") {
+                    std::cout << "[Сервер] Сообщение доставлено" << std::endl;
+                } else {
+                    std::cout << "[Получено UDP] " << message << std::endl;
+                }
+                
+                // После вывода сообщения снова показываем приглашение
+                std::cout << "Введите сообщение: ";
+                std::cout.flush();
+            } else if (errno != EWOULDBLOCK && errno != EAGAIN) {
+                std::cerr << "\n[Ошибка] При получении UDP данных: " << strerror(errno) << std::endl;
+            }
+        }
+        
+        // Небольшая пауза, чтобы не загружать процессор
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+}
+
+// Реализация метода stop для безопасного завершения работы
+void Net::Client::stop() {
+    running = false;
+    
+    if (receiver_thread && receiver_thread->joinable()) {
+        receiver_thread->join();
+    }
+    
+    if (sock != -1) {
+        close(sock);
+        sock = -1;
+    }
+    
+    is_connected = false;
+}
+
+// Деструктор
+Net::Client::~Client() {
+    stop();
 }

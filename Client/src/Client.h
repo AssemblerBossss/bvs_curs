@@ -4,6 +4,8 @@
 #include "../../Headers.h"
 #include "../../utilities/config.h"
 #include "../../utilities/protocol.h"
+#include <thread>
+#include <atomic>
 
 
 namespace Net {
@@ -19,12 +21,19 @@ namespace Net {
 
         int sock = -1;
         sockaddr_in server_addr{};
+        
+        std::unique_ptr<std::thread> receiver_thread;
+        std::atomic<bool> running{false};
 
         void runTCP();
         void runUDP();
+        
+        // Метод для прослушивания входящих сообщений в отдельном потоке
+        void receive_messages();
 
     public:
         Client() : is_connected(false), sock(-1) {}
+        ~Client();
 
         void load_config(const std::string& filename);
 
@@ -39,6 +48,9 @@ namespace Net {
 
         void run();
         bool send_message(const std::string& message);
+        
+        // Остановка работы клиента
+        void stop();
 
     };
 }; // namespace Net
