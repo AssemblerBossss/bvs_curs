@@ -13,6 +13,10 @@ constexpr int INTERFACES = 4;
  */
 class CommutationTable {
 public:
+
+    /**
+    * @brief Конструктор. Устанавливает стандартное время жизни для записей.
+    */
     CommutationTable();
 
     /**
