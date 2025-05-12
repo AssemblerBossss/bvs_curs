@@ -64,7 +64,7 @@ public:
 
 private:
     std::map<int, std::list<TableEntry>> table; ///< Таблица: порт → список записей
-    static int row_life_time;              ///< Значение времени жизни по умолчанию
+    static int row_life_time;                   ///< Значение времени жизни по умолчанию
     mutable std::mutex tableMutex;              ///< Мьютекс для синхронизации доступа
 };
 
