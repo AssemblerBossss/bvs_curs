@@ -3,6 +3,11 @@
 #ifndef CURSOV_CONFIG_H
 #define CURSOV_CONFIG_H
 
+/**
+ * @brief Проверяет существование и доступность файла для чтения.
+ * @param filename Путь к проверяемому файлу.
+ * @return true, если файл существует и доступен для чтения.
+ */
 inline bool file_exists_and_readable(const std::string& filename) {
     std::filesystem::path file_path(filename);
 
@@ -11,7 +16,12 @@ inline bool file_exists_and_readable(const std::string& filename) {
            (access(filename.c_str(), R_OK) == 0);  // Проверка, доступен ли файл для чтения текущим пользователем
 }
 
-
+/**
+ * @brief Читает конфигурационный файл формата key=value.
+ * @param filename Путь к конфигурационному файлу.
+ * @return Словарь с ключами и значениями из конфигурационного файла.
+ * @throws std::runtime_error Если файл не существует или недоступен для чтения.
+ */
 inline std::unordered_map<std::string, std::string> read_config_file(const std::string& filename) {
     if (!file_exists_and_readable(filename)) {
         throw std::runtime_error("Файл конфигурации недоступен или не существует: " + filename);
