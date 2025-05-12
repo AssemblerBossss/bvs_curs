@@ -20,11 +20,11 @@ namespace Net {
         int sock = -1;
         sockaddr_in server_addr{};
 
-        //void runTCP();
+        void runTCP();
         void runUDP();
 
     public:
-        Client() = default;
+        Client() : is_connected(false), sock(-1) {}
 
         void load_config(const std::string& filename);
 

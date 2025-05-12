@@ -44,34 +44,40 @@ void Net::Client::load_config(const std::string &filename) {
     std::unordered_map<std::string, std::string> values = read_config_file(filename);
     setConfigValue(
             values.at("server_ip"),
-            values.at("sever_port"),
+            values.at("server_port"),
             values.at("client_port"),
             values.at("protocol")
     );
 }
 
 void Net::Client::runUDP() {
-    int socket_ = socket(AF_INET, SOCK_DGRAM, 0);
+    sock = socket(AF_INET, SOCK_DGRAM, 0);  // используй член класса
 
-    if (socket_ < 0) {
+    if (sock < 0) {
         std::cerr << "Ошибка создания UDP сокета\n";
         return;
     }
 
-    sockaddr_in client_addr{}, server_addr{};
+    sockaddr_in client_addr{};
+    this->server_addr = {}; // чтобы сохранить адрес сервера
 
     client_addr.sin_family = AF_INET;
     client_addr.sin_port = htons(client_port);
     client_addr.sin_addr.s_addr = INADDR_ANY;
-    bind(socket_, (sockaddr*)&client_addr, sizeof(client_addr));
+
+    if (bind(sock, (sockaddr*)&client_addr, sizeof(client_addr)) < 0) {
+        std::cerr << "Ошибка привязки UDP-сокета\n";
+        return;
+    }
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(server_port);
-    inet_pton(AF_INET, server_ip.c_str(), &server_addr.sin_addr); // convert IPv4 and IPv6 addresses from text to binary form
+    inet_pton(AF_INET, server_ip.c_str(), &server_addr.sin_addr);
 
     is_connected = true;
     std::cout << "UDP: Готов к отправке сообщений\n";
 }
+
 
 bool Net::Client::send_message(const std::string &message) {
     if (!is_connected || sock < 0) {
@@ -124,10 +130,32 @@ bool Net::Client::send_message(const std::string &message) {
 
 void Net::Client::run() {
     if (protocol == Protocol::TCP) {
-        //runTCP();
+        runTCP();
     } else if (protocol == Protocol::UDP) {
         runUDP();
     } else {
         std::cerr << "Неизвестный протокол: " << to_string(protocol) << ". Используйте TCP или UDP.\n";
     }
+}
+
+void Net::Client::runTCP() {
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock < 0) {
+        std::cerr << "Ошибка создания TCP сокета\n";
+        return;
+    }
+
+    sockaddr_in server_addr{};
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(server_port);
+    inet_pton(AF_INET, server_ip.c_str(), &server_addr.sin_addr);
+
+    if (connect(sock, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        std::cerr << "Ошибка подключения к TCP серверу\n";
+        return;
+    }
+
+    this->server_addr = server_addr;
+    is_connected = true;
+    std::cout << "TCP: Подключено к серверу\n";
 }
