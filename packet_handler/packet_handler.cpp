@@ -1,5 +1,5 @@
 #include <netinet/tcp.h>
-#include "../PacketHandler.h"
+#include "PacketHandler.h"
 
 std::string get_mac_address(uint8_t ether_host[ETH_ALEN]) {
     std::stringstream stream_mac;

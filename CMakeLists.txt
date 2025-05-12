@@ -29,6 +29,8 @@ add_executable(packet_sniffer
 )
 
 add_executable( Commutation_table
+        CommutationTable/TableEntry.h
+        CommutationTable/TableEntry.cpp
         CommutationTable/CommutationTable.h
         CommutationTable/CommutationTable.cpp
         CommutationTable/Stats.h
