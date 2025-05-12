@@ -1,18 +1,12 @@
 #include "CommutationTable.h"
 
 
-/**
- * @brief Конструктор. Устанавливает стандартное время жизни для записей.
- */
+
 CommutationTable::CommutationTable() {
     CommutationTable::row_life_time = 10;
 }
 
-/**
- * @brief Вставить новую запись в таблицу на указанный порт.
- * @param mac MAC-адрес устройства.
- * @param port Номер порта, на который поступил пакет.
- */
+
 void CommutationTable::insert(const std::array<uint8_t, MAC_SIZE>& mac, int port) {
     std::lock_guard<std::mutex> lock(tableMutex);
     table[port].emplace_front(mac, row_life_time);
@@ -23,11 +17,7 @@ void CommutationTable::insert(const std::array<uint8_t, MAC_SIZE>& mac, int port
     std::cout << std::dec << "\n";
 }
 
-/**
- * @brief Обновить время жизни существующей записи.
- * @param mac MAC-адрес, по которому ищется запись.
- * @param port Порт, в котором проводится поиск.
- */
+
 void CommutationTable::update(const std::array<uint8_t, MAC_SIZE>& mac, int port) {
     std::lock_guard<std::mutex> lockGuard(tableMutex);
     for (TableEntry& entry: table[port]) {
@@ -38,12 +28,7 @@ void CommutationTable::update(const std::array<uint8_t, MAC_SIZE>& mac, int port
     }
 }
 
-/**
- * @brief Проверить наличие записи по MAC-адресу на конкретном порту.
- * @param mac MAC-адрес.
- * @param port Порт, в котором проводится поиск.
- * @return true, если запись найдена.
- */
+
 bool CommutationTable::contains(const std::array<uint8_t, MAC_SIZE> &mac, int port) const {
     std::lock_guard<std::mutex> lock(tableMutex);
     auto it = table.find(port);
@@ -56,12 +41,7 @@ bool CommutationTable::contains(const std::array<uint8_t, MAC_SIZE> &mac, int po
 
 }
 
-/**
- * @brief Найти порт по MAC-адресу среди всех портов.
- * @param mac MAC-адрес.
- * @param foundPort Сюда будет записан найденный порт.
- * @return true, если запись найдена.
- */
+
 bool CommutationTable::find_interface(const std::array<uint8_t, MAC_SIZE> &mac, int &found_port) const {
     std::lock_guard<std::mutex> lock(tableMutex);
     for (const auto& [port, entries] : table) {
@@ -75,9 +55,7 @@ bool CommutationTable::find_interface(const std::array<uint8_t, MAC_SIZE> &mac, 
     return false;
 }
 
-/**
- * @brief Удалить все записи с истекшим временем жизни.
- */
+
 void CommutationTable::clear_expired() {
     std::lock_guard<std::mutex> lock(tableMutex);
     for (auto& [port, entries] : table) {
@@ -88,9 +66,7 @@ void CommutationTable::clear_expired() {
     }
 }
 
-/**
- * @brief Вывести содержимое таблицы коммутации.
- */
+
 void CommutationTable::print() const {
     std::lock_guard<std::mutex> lock(tableMutex);
     std::cout << "\n---- COMMUTATION TABLE ----\n";
@@ -107,10 +83,7 @@ void CommutationTable::print() const {
     std::cout << "---------------------------\n\n";
 }
 
-/**
- * @brief Установить новое значение времени жизни для новых/обновлённых записей.
- * @param seconds Время жизни в секундах.
- */
+
 void CommutationTable::set_life_time(int seconds) {
     row_life_time = seconds > 0 ? seconds : 10;
 }
