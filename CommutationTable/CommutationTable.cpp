@@ -83,6 +83,63 @@ void CommutationTable::print() const {
     std::cout << "---------------------------\n\n";
 }
 
+bool CommutationTable::forward_packet(const std::array<uint8_t, MAC_SIZE> &src_mac,
+                                      const std::array<uint8_t, MAC_SIZE> &dst_mac, int src_port, const u_char *packet,
+                                      size_t packet_size) {
+    // Обучение - добавление/обновление записи для источника
+    if (contains(src_mac, src_port)) {
+        update(src_mac, src_port);
+    } else {
+        insert(src_mac, src_port);
+    }
+
+    // Проверка на широковещательный адрес (все биты = 1)
+    bool is_broadcast = true;
+    for (short i = 0; i < MAC_SIZE; i++) {
+        if (dst_mac[i] != 0xFF) {
+            is_broadcast = false;
+            break;
+        }
+    }
+
+    // Если это широковещательный адрес, отправляем на все порты кроме источника
+    if (is_broadcast) {
+        bool all_sent = true;
+        for (int port = 1; port <= INTERFACES; port++) {
+            if (port != src_port) {
+                if (!send_to_port(port, packet, packet_size)) {
+                    all_sent = false;
+                }
+            }
+        }
+        return all_sent;
+    }
+
+    // Если это не широковещательный адрес, ищем порт назначения в таблице
+    int dst_port = -1;
+    if (find_interface(dst_mac, dst_port)) {
+        // Если порт назначения совпадает с портом источника, ничего не делаем
+        if (dst_port == src_port) {
+            std::cout << "Source and destination ports are the same. Packet dropped." << std::endl;
+            return true; // Пакет не переслан, но обработан правильно
+        }
+        // Отправка пакета на порт назначения
+        return send_to_port(dst_port, packet, packet_size);
+    } else {
+        // Если порт не найден, выполняем отправку на все порты, кроме источника
+        bool all_sent = true;
+        for (int port = 1; port <= INTERFACES; port++) {
+            if (port != src_port) {
+                if (!send_to_port(port, packet, packet_size)) {
+                    all_sent = false;
+                }
+            }
+        }
+
+        return all_sent;
+    }
+}
+
 
 void CommutationTable::set_life_time(int seconds) {
     row_life_time = seconds > 0 ? seconds : 10;
