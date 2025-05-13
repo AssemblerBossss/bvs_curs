@@ -50,10 +50,22 @@ public:
     bool find_interface(const std::array<uint8_t, MAC_SIZE>& mac, int& found_port) const;
 
     /**
+     * @brief Пересылка пакета по назначению.
+     * @param src_mac MAC-адрес источника.
+     * @param dst_mac MAC-адрес назначения.
+     * @param src_port Порт, с которого пришел пакет.
+     * @param packet Указатель на данные пакета.
+     * @param packet_size Размер пакета в байтах.
+     * @return true, если пакет успешно переслан, false в противном случае.
+     */
+    bool forward_packet(const std::array<uint8_t , MAC_SIZE> &src_mac,
+                        const std::array<uint8_t, MAC_SIZE> &dst_mac,
+                        int src_port, const u_char *packet, size_t packet_size);
+
+    /**
      * @brief Удалить все устаревшие записи (lifetime <= 0).
      */
     void clear_expired();
-
 
     /**
      * @brief Вывести содержимое таблицы в консоль.
