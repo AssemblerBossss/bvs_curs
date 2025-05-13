@@ -35,9 +35,9 @@ namespace Net {
 
             // 3. Настройка адреса сервера
             struct sockaddr_in server_addr{};
-            server_addr.sin_family = AF_INET;                 // IPv4
-            server_addr.sin_addr.s_addr = INADDR_ANY;         // Любой локальный адрес
-            server_addr.sin_port = htons(port_);     // Порт (big-endian)
+            server_addr.sin_family = AF_INET;           // IPv4
+            server_addr.sin_addr.s_addr = INADDR_ANY;   // Любой локальный адрес
+            server_addr.sin_port = htons(port_);        // Порт (big-endian)
 
             // 4. Привязка сокета
             if (bind(server_socket_, reinterpret_cast<sockaddr *>(&server_addr), sizeof(server_addr)) != 0) {
