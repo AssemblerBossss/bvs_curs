@@ -33,17 +33,24 @@ namespace Net {
                 throw std::runtime_error("Setsockopt(SO_REUSEADDR) failed: " + std::string(strerror(errno)));
             }
 
-            // 3. Настройка адреса сервера
-            struct sockaddr_in server_addr{};
-            server_addr.sin_family = AF_INET;           // IPv4
-            server_addr.sin_addr.s_addr = INADDR_ANY;   // Любой локальный адрес
-            server_addr.sin_port = htons(port_);        // Порт (big-endian)
-
-            // 4. Привязка сокета
-            if (bind(server_socket_, reinterpret_cast<sockaddr *>(&server_addr), sizeof(server_addr)) != 0) {
-                close(server_socket_);
-                throw std::runtime_error("Bind failed: " + std::string(strerror(errno)));
+	        // 3. Получение IP-адреса интерфейса ens33 через ioctl
+            struct ifreq ifr{};
+            std::strncpy(ifr.ifr_name, "ens33", IFNAMSIZ - 1);
+            if (ioctl(server_socket_, SIOCGIFADDR, &ifr) == -1) {
+            close(server_socket_);
+            throw std::runtime_error("ioctl(SIOCGIFADDR) failed: " + std::string(strerror(errno)));
             }
+
+            struct sockaddr_in ip_addr = *(struct sockaddr_in*)&ifr.ifr_addr;
+            char ip_str[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &(ip_addr.sin_addr), ip_str, INET_ADDRSTRLEN);
+            std::cout << "Interface ens33 IP: " << ip_str << "\n";
+
+            // 4. Настройка адреса сервера
+            struct sockaddr_in server_addr{};
+            server_addr.sin_family = AF_INET;
+            server_addr.sin_addr = ip_addr.sin_addr;  // IP интерфейса ens33
+            server_addr.sin_port = htons(port_);
 
             // 5. Прослушивание входящих соединений (только для TCP)
             if (protocol_ == Protocol::TCP) {
