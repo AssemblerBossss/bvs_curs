@@ -4,7 +4,7 @@
 #include "Headers.h"
 #include "TableEntry.h"
 
-constexpr int INTERFACES = 4;
+constexpr int INTERFACES = 2;
 
 
 /**

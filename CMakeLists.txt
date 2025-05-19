@@ -25,6 +25,9 @@ target_link_libraries(server
 # ============ Executable: packet_sniffer ============
 add_executable(packet_sniffer
         packet_handler/packet_handler.cpp
+        CommutationTable/CommutationTable.cpp
+        CommutationTable/Utils.cpp
+        CommutationTable/TableEntry.cpp
 
 )
 

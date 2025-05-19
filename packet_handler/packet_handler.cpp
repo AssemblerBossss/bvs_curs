@@ -107,10 +107,8 @@ int main() {
     char errbuf[PCAP_ERRBUF_SIZE];
     std::vector<pcap_t*> handles;
     std::vector<std::string> interfaces = {
-        "enxd60d1cddb2fe",  // Замените на ваши реальные интерфейсы
-        "eth0",
-        "eth1",
-        "eth2"
+        "ens33",  // Замените на ваши реальные интерфейсы
+        "ens34"
     };
 
     // Открываем все интерфейсы
@@ -145,7 +143,7 @@ int main() {
     std::vector<std::thread> capture_threads;
     for (size_t i = 0; i < handles.size(); i++) {
         int port = i + 1;
-        capture_threads.emplace_back([handles[i], port]() {
+        capture_threads.emplace_back([handles, port, i]() {
             pcap_loop(handles[i], 0, packet_handler, (u_char*)&port);
         });
     }

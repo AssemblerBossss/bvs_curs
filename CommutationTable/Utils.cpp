@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "CommutationTable.h"
 
 // Структура для хранения pcap_t* дескрипторов для каждого порта
 static std::map<int, pcap_t*> port_handlers;
@@ -20,16 +21,10 @@ bool init_port_handler(int port_number) {
     // Определяем имя интерфейса на основе номера порта
     switch (port_number) {
         case 1:
-            interface_name = "enxd60d1cddb2fe"; // USB Ethernet adapter
+            interface_name = "ens33";
             break;
         case 2:
-            interface_name = "eth0";
-            break;
-        case 3:
-            interface_name = "eth1";
-            break;
-        case 4:
-            interface_name = "eth2";
+            interface_name = "ens34";
             break;
         default:
             std::cerr << "Invalid port number: " << port_number << std::endl;

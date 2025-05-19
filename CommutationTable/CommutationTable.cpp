@@ -1,10 +1,10 @@
 #include "CommutationTable.h"
+#include "Utils.h"
 
 
+int CommutationTable::row_life_time = 10;
 
-CommutationTable::CommutationTable() {
-    CommutationTable::row_life_time = 10;
-}
+CommutationTable::CommutationTable() {}
 
 
 void CommutationTable::insert(const std::array<uint8_t, MAC_SIZE>& mac, int port) {
