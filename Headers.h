@@ -29,6 +29,8 @@
 #include <iomanip>
 #include <sys/stat.h>
 #include <list>
+#include <sys/ioctl.h>      // для ioctl
+#include <net/if.h>         // для struct ifreq и IFNAMSIZ
 
 
 // Общие константы

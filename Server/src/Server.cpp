@@ -168,7 +168,14 @@ namespace Net {
                                                   reinterpret_cast<sockaddr *>(&client_addr), &client_len);
                 if (bytes_received > 0) {
                     buffer[bytes_received] = '\n';
-                    broadcast_udp(buffer, &client_addr);
+                    std::cout << "Received message from "
+                          << inet_ntoa(client_addr.sin_addr) << ": " << buffer << std::endl;
+
+                    // Отправка ACK
+                    std::string ack_message = "OK";
+                    sendto(server_socket_, ack_message.c_str(), ack_message.length(), 0,
+                           reinterpret_cast<sockaddr *>(&client_addr), client_len);
+                    //broadcast_udp(buffer, &client_addr);
 
                 }
             }

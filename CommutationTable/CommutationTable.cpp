@@ -9,13 +9,31 @@ CommutationTable::CommutationTable() {}
 
 void CommutationTable::insert(const std::array<uint8_t, MAC_SIZE>& mac, int port) {
     std::lock_guard<std::mutex> lock(tableMutex);
+
+    // Удаляем MAC с других портов (если есть)
+    for (auto& [p, entries] : table) {
+        if (p != port) {
+            entries.remove_if([&mac](const TableEntry& entry) {
+                return entry.get_mac() == mac;
+            });
+        }
+    }
+
+    // Удаляем дубликат в текущем порту (на всякий случай)
+    table[port].remove_if([&mac](const TableEntry& entry) {
+        return entry.get_mac() == mac;
+    });
+
+    // Добавляем новую запись
     table[port].emplace_front(mac, row_life_time);
+
     std::cout << "New row, port: " << port << ", mac: ";
     for (const auto& byte : mac) {
         std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte) << ":";
     }
     std::cout << std::dec << "\n";
 }
+
 
 
 void CommutationTable::update(const std::array<uint8_t, MAC_SIZE>& mac, int port) {
