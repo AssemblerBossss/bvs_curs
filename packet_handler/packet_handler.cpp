@@ -1,5 +1,10 @@
 #include <netinet/tcp.h>
 #include "PacketHandler.h"
+#include "../CommutationTable/CommutationTable.h"
+#include "../CommutationTable/Utils.h"
+
+// Глобальная таблица коммутации для использования в обработчике пакетов
+static CommutationTable g_commutation_table;
 
 std::string get_mac_address(uint8_t ether_host[ETH_ALEN]) {
     std::stringstream stream_mac;
@@ -23,6 +28,25 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header,
                     const u_char* packet) {
     struct ether_header* etherHeader = (struct ether_header*)packet;
 
+    // Преобразуем MAC-адреса в формат std::array
+    std::array<uint8_t, MAC_SIZE> src_mac;
+    std::array<uint8_t, MAC_SIZE> dst_mac;
+    
+    // Копируем MAC-адреса из заголовка Ethernet
+    for (int i = 0; i < MAC_SIZE; i++) {
+        src_mac[i] = etherHeader->ether_shost[i];
+        dst_mac[i] = etherHeader->ether_dhost[i];
+    }
+         
+    // Предполагаем, что порт, с которого пришел пакет, указан в args
+    // Если args == nullptr, используем порт 1 как пример
+    int src_port = (args != nullptr) ? *((int*)args) : 1;
+    
+    // Пересылка пакета с использованием таблицы коммутации
+    bool forwarded = g_commutation_table.forward_packet(
+        src_mac, dst_mac, src_port, packet, header->len);
+    
+    // Проверяем, был ли пакет IP с TCP или UDP для вывода информации
     if (ntohs(etherHeader->ether_type) != ETHERTYPE_IP) {
         return; // Не IP — ничего не выводим
     }
@@ -80,20 +104,64 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header,
 }
 
 int main() {
-    char errbuf[PCAP_ERRBUF_SIZE];  // Буфер для ошибок
-    pcap_t *handle;  // Дескриптор для захвата пакетов
+    char errbuf[PCAP_ERRBUF_SIZE];
+    std::vector<pcap_t*> handles;
+    std::vector<std::string> interfaces = {
+        "enxd60d1cddb2fe",  // Замените на ваши реальные интерфейсы
+        "eth0",
+        "eth1",
+        "eth2"
+    };
 
-    // Открываем сетевой интерфейс для захвата пакетов
-    handle = pcap_open_live("enxd60d1cddb2fe", BUFSIZ, 1, 1000, errbuf);
-    if (handle == nullptr) {
-        std::cerr << "Could not open device: " << errbuf << std::endl;
+    // Открываем все интерфейсы
+    for (size_t i = 0; i < interfaces.size(); i++) {
+        pcap_t* handle = pcap_open_live(interfaces[i].c_str(), BUFSIZ, 1, 1000, errbuf);
+        if (handle == nullptr) {
+            std::cerr << "Could not open device " << interfaces[i] << ": " << errbuf << std::endl;
+            continue;
+        }
+        handles.push_back(handle);
+        std::cout << "Opened interface " << interfaces[i] << " as port " << (i + 1) << std::endl;
+    }
+
+    if (handles.empty()) {
+        std::cerr << "No interfaces were opened successfully" << std::endl;
         return 1;
     }
 
-    std::cout << "Starting packet capture..." << std::endl;
-    pcap_loop(handle, 0, packet_handler, nullptr);
+    std::cout << "Starting packet capture on " << handles.size() << " interfaces..." << std::endl;
 
-    // Закрываем дескриптор
-    pcap_close(handle);
+    // Запускаем поток для периодической очистки таблицы
+    std::thread cleanup_thread([]() {
+        while (true) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+            g_commutation_table.clear_expired();
+            g_commutation_table.print(); // Выводим состояние таблицы каждую секунду
+        }
+    });
+    cleanup_thread.detach();
+
+    // Запускаем захват пакетов на всех интерфейсах
+    std::vector<std::thread> capture_threads;
+    for (size_t i = 0; i < handles.size(); i++) {
+        int port = i + 1;
+        capture_threads.emplace_back([handles[i], port]() {
+            pcap_loop(handles[i], 0, packet_handler, (u_char*)&port);
+        });
+    }
+
+    // Ждем завершения всех потоков захвата
+    for (auto& thread : capture_threads) {
+        thread.join();
+    }
+
+    // Закрываем все дескрипторы
+    for (auto handle : handles) {
+        pcap_close(handle);
+    }
+    
+    // Очищаем ресурсы портов перед выходом
+    cleanup_port_handlers();
+    
     return 0;
 }

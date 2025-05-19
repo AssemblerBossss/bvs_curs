@@ -18,19 +18,18 @@ bool init_port_handler(int port_number) {
     std::string interface_name;
 
     // Определяем имя интерфейса на основе номера порта
-    // В реальной системе здесь будет логика сопоставления номера порта с интерфейсом
     switch (port_number) {
         case 1:
-            interface_name = "eth0"; // Пример
+            interface_name = "enxd60d1cddb2fe"; // USB Ethernet adapter
             break;
         case 2:
-            interface_name = "eth1"; // Пример
+            interface_name = "eth0";
             break;
         case 3:
-            interface_name = "eth2"; // Пример
+            interface_name = "eth1";
             break;
         case 4:
-            interface_name = "eth3"; // Пример
+            interface_name = "eth2";
             break;
         default:
             std::cerr << "Invalid port number: " << port_number << std::endl;
