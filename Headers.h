@@ -31,6 +31,11 @@
 #include <list>
 #include <sys/ioctl.h>      // для ioctl
 #include <net/if.h>         // для struct ifreq и IFNAMSIZ
+#include <sys/types.h>
+#include <ifaddrs.h>
+#include <arpa/inet.h>
+#include <net/if.h>
+#include <unistd.h>
 
 
 // Общие константы

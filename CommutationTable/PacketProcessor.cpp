@@ -1,14 +1,6 @@
-#include "../../include/monitoring/packet_processor.h"
-#include "../../include/monitoring/types.h"
-#include "../../include/utils/network_utils.h"
-#include <iostream>
-#include <netinet/ip.h>
-#include <netinet/ip_icmp.h>
-#include <netinet/tcp.h>
-#include <netinet/udp.h>
-#include <arpa/inet.h>
-#include <net/ethernet.h>
-#include <net/if_arp.h>
+#include "PacketProcessor.h"
+#include "Types.h"
+#include "NetworkUtils.h"
 
 void PacketProcessor::printEthernetInfo(const EthernetHeader *eth, uint32_t packet_len) {
     std::cout << "\n=== Packet (" << packet_len << " bytes) ===" << std::endl;

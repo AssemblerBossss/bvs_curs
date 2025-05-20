@@ -1,10 +1,7 @@
 #ifndef PACKET_PROCESSOR_H
 #define PACKET_PROCESSOR_H
 
-#include <pcap/pcap.h>
-#include <cstdint>
-#include <chrono>
-#include <vector>
+
 #include "Types.h"
 #include "CommutationTable.h"
 

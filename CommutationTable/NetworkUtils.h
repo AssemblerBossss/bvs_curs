@@ -1,9 +1,8 @@
 #ifndef NETWORK_UTILS_H
 #define NETWORK_UTILS_H
 
-#include <vector>
-#include <string>
-#include <pcap.h>
+#include "../Headers.h"
+
 
 namespace utils {
 

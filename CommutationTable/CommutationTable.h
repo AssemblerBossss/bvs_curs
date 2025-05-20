@@ -1,12 +1,7 @@
 #ifndef COMMUTATION_TABLE_H
 #define COMMUTATION_TABLE_H
 
-#include <unordered_map>
-#include <vector>
-#include <mutex>
-#include <chrono>
-#include <atomic>
-#include <cstring>
+#include "../Headers.h"
 #include "Types.h"
 
 class CommutationTable {

@@ -1,7 +1,5 @@
-#include "../../include/monitoring/commutation_table.h"
-#include "../../include/utils/network_utils.h"
-#include <iomanip>
-#include <iostream>
+#include "CommutationTable.h"
+#include "NetworkUtils.h"
 
 CommutationTable::CommutationTable(int lifetime) : maxLifetimeSec_(lifetime) {}
 
