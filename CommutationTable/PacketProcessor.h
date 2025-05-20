@@ -5,8 +5,8 @@
 #include <cstdint>
 #include <chrono>
 #include <vector>
-#include "types.h"
-#include "commutation_table.h"
+#include "Types.h"
+#include "CommutationTable.h"
 
 class PacketProcessor {
 public:

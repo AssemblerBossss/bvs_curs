@@ -7,7 +7,7 @@
 #include <chrono>
 #include <atomic>
 #include <cstring>
-#include "types.h"
+#include "Types.h"
 
 class CommutationTable {
 public:
