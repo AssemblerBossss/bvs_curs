@@ -222,7 +222,7 @@ int main() {
     }
 
     ttl_substitution_cfg ttl_cfg = {0};
-    ConfigParser config("../configs/ttl_substitution.cfg");
+    ConfigParser config("../CommutationTable/ttl_substitution.cfg");
     if (!config.isLoaded()) {
         std::cerr << "Error loading config file!" << std::endl;
         return 1;

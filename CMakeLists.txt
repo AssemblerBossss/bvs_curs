@@ -26,20 +26,14 @@ target_link_libraries(server
 add_executable(packet_sniffer
         packet_handler/packet_handler.cpp
         CommutationTable/CommutationTable.cpp
-        CommutationTable/Utils.cpp
-        CommutationTable/TableEntry.cpp
-
 )
 
 add_executable( Commutation_table
-        CommutationTable/TableEntry.h
-        CommutationTable/TableEntry.cpp
-        CommutationTable/CommutationTable.h
+        CommutationTable/switch_main.cpp
         CommutationTable/CommutationTable.cpp
-        CommutationTable/Stats.h
-        CommutationTable/Stats.cpp
-        CommutationTable/Utils.h
-        CommutationTable/Utils.cpp
+        CommutationTable/NetworkUtils.cpp
+        CommutationTable/PacketProcessor.cpp
+        CommutationTable/config_parser.cpp
 )
 
 target_include_directories(Commutation_table PRIVATE
@@ -55,3 +49,6 @@ target_include_directories(packet_sniffer PRIVATE
 target_link_libraries(packet_sniffer
         PRIVATE pcap
 )
+
+find_library(PCAP_LIBRARY pcap)
+target_link_libraries(Commutation_table PRIVATE ${PCAP_LIBRARY})
