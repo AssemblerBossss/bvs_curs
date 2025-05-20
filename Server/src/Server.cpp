@@ -52,6 +52,11 @@ namespace Net {
             server_addr.sin_addr = ip_addr.sin_addr;  // IP интерфейса ens33
             server_addr.sin_port = htons(port_);
 
+            if (bind(server_socket_, reinterpret_cast<sockaddr*>(&server_addr), sizeof(server_addr)) != 0) {
+                close(server_socket_);
+                throw std::runtime_error("Bind failed: " + std::string(strerror(errno)));
+            }
+
             // 5. Прослушивание входящих соединений (только для TCP)
             if (protocol_ == Protocol::TCP) {
                 const int backlog = 128;
