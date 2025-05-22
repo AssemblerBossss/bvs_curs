@@ -9,14 +9,6 @@ void PacketProcessor::printEthernetInfo(const EthernetHeader *eth, uint32_t pack
               << ", type: 0x" << std::hex << ntohs(eth->type) << std::dec << std::endl;
 }
 
-void PacketProcessor::printArpInfo(const ArpHeader *arp) {
-    std::cout << "[ARP] Operation: " << (ntohs(arp->op) == ARPOP_REQUEST ? "Request" : "Reply")
-              << ", Sender MAC: " << utils::macToString(arp->sender_mac)
-              << ", Sender IP: " << utils::ipToString(arp->sender_ip)
-              << ", Target MAC: " << utils::macToString(arp->target_mac)
-              << ", Target IP: " << utils::ipToString(arp->target_ip) << std::endl;
-}
-
 void PacketProcessor::printIpInfo(const IpHeader *ip) {
     std::cout << "[L3] IP: src = " << utils::ipToString(ip->src)
               << ", dst = " << utils::ipToString(ip->dst)
