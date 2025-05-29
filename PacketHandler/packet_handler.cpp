@@ -1,10 +1,7 @@
 #include <netinet/tcp.h>
 #include "PacketHandler.h"
 #include "../CommutationTable/CommutationTable.h"
-#include "../CommutationTable/Utils.h"
 
-// Глобальная таблица коммутации для использования в обработчике пакетов
-static CommutationTable g_commutation_table;
 
 std::string get_mac_address(uint8_t ether_host[ETH_ALEN]) {
     std::stringstream stream_mac;
@@ -41,11 +38,7 @@ void packet_handler(u_char *args, const struct pcap_pkthdr *header,
     // Предполагаем, что порт, с которого пришел пакет, указан в args
     // Если args == nullptr, используем порт 1 как пример
     int src_port = (args != nullptr) ? *((int*)args) : 1;
-    
-    // Пересылка пакета с использованием таблицы коммутации
-    bool forwarded = g_commutation_table.forward_packet(
-        src_mac, dst_mac, src_port, packet, header->len);
-    
+
     // Проверяем, был ли пакет IP с TCP или UDP для вывода информации
     if (ntohs(etherHeader->ether_type) != ETHERTYPE_IP) {
         return; // Не IP — ничего не выводим

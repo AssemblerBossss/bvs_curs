@@ -19,8 +19,8 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <netinet/ether.h>
-#include <netinet/udp.h>
 #include <netinet/tcp.h>
+#include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
@@ -42,6 +42,8 @@
 const int PORT = 3425;
 const std::string DEFAULT_IP = "127.0.0.1";
 
+#define MAC_SIZE = 6
+
 // Перечисление команд
 enum class Commands {
     connect,
@@ -62,10 +64,6 @@ struct my_data {
     std::string *current_interface;
     std::vector<std::string> *interfaces;
 };
-
-// Прототипы функций
-void pcap_func(const std::string &interface, my_data data);
-//std::string get_mac_address(const u_char *mac);
 
 
 #endif //CURSOV_HEADERS_H

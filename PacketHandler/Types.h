@@ -15,23 +15,23 @@ struct EthernetHeader {
 };
 
 struct IpHeader {
-    uint8_t vhl;
-    uint8_t tos;
-    uint16_t len;
-    uint16_t id;
-    uint16_t offset;
-    uint8_t ttl;
-    uint8_t protocol;
-    uint16_t checksum;
-    uint32_t src;
-    uint32_t dst;
+    uint8_t vhl;          // Version (4 bits) and Header Length (4 bits).
+    uint8_t tos;          // Type of Service.
+    uint16_t len;         // Total size of the IP packet (header + data) in bytes.
+    uint16_t id;          // Identification. Unique identifier for the packet, used to reassemble fragmented packets.
+    uint16_t offset;      // Fragment Offset (13 bits) and Flags (3 bits).
+    uint8_t ttl;          // Time to Live. Maximum number of hops (routers) the packet can pass.
+    uint8_t protocol;     // Protocol. Indicates the protocol of the payload.
+    uint16_t checksum;    // Header Checksum.
+    uint32_t src;         // Source IP Address.
+    uint32_t dst;         // Destination IP Address.
 };
 
 struct UdpHeader {
-    uint16_t sport;
-    uint16_t dport;
+    uint16_t sport;         // Source port
+    uint16_t dport;         // Destination port
     uint16_t len;
-    uint16_t checksum;
+    uint16_t checksum;      // Check sum
 };
 
 struct IcmpHeader {
@@ -42,17 +42,6 @@ struct IcmpHeader {
     uint16_t seq;
 };
 
-struct ArpHeader {
-    uint16_t htype;         // Hardware type
-    uint16_t ptype;         // Protocol type
-    uint8_t hlen;           // Hardware address length
-    uint8_t plen;           // Protocol address length
-    uint16_t op;            // Operation code
-    uint8_t sender_mac[6];  // Sender MAC address
-    uint32_t sender_ip;     // Sender IP address
-    uint8_t target_mac[6];  // Target MAC address
-    uint32_t target_ip;     // Target IP address
-};
 
 struct TcpHeader {
     uint16_t sport;         // Source port

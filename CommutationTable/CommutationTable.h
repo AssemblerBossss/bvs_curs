@@ -2,7 +2,6 @@
 #define COMMUTATION_TABLE_H
 
 #include "../Headers.h"
-#include "Types.h"
 
 class CommutationTable {
 public:
