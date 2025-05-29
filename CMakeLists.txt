@@ -18,6 +18,7 @@ set(COMMON_INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}/Server/src
         ${CMAKE_CURRENT_SOURCE_DIR}/CommutationTable
         ${CMAKE_CURRENT_SOURCE_DIR}/PacketHandler
+        ${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils
         )
 
 # ============ Сервер ============
@@ -31,18 +32,24 @@ target_link_libraries(server PRIVATE Threads::Threads)
 
 # ============ Packet Sniffer ============
 add_executable(packet_sniffer
-        PacketHandler/packet_handler.cpp
+        PacketHandler/monitoring_main.cpp
+        PacketHandler/PacketProcessor.cpp  # Убедитесь, что он добавлен
+        NetworkUtils/NetworkUtils.cpp
         CommutationTable/CommutationTable.cpp
-        )
+)
 
-target_include_directories(packet_sniffer PRIVATE ${COMMON_INCLUDES})
+target_include_directories(packet_sniffer PRIVATE
+        ${COMMON_INCLUDES}
+        ${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils
+)
+
 target_link_libraries(packet_sniffer PRIVATE ${PCAP_LIBRARY})
 
 # ============ Commutation Table ============
 add_executable(Commutation_table
         CommutationTable/switch_main.cpp
         CommutationTable/CommutationTable.cpp
-        CommutationTable/NetworkUtils.cpp
+        NetworkUtils/NetworkUtils.cpp
         PacketHandler/PacketProcessor.cpp
         CommutationTable/config_parser.cpp
         )

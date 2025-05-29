@@ -1,11 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <string>
-#include <pcap/pcap.h>
-#include "monitoring/packet_processor.h"
-#include "monitoring/commutation_table.h"
-#include "utils/network_utils.h"
-#include "utils/config_parser.h"
+#include "PacketProcessor.h"
 
 
 int main(int argc, char* argv[]) {

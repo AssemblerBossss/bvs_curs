@@ -1,6 +1,4 @@
 #include "PacketProcessor.h"
-#include "Types.h"
-#include "NetworkUtils.h"
 
 void PacketProcessor::printEthernetInfo(const struct ether_header *eth, uint32_t packet_len) {
     std::cout << "\n=== Packet (" << packet_len << " bytes) ===" << std::endl;
@@ -25,7 +23,7 @@ void PacketProcessor::printIpInfo(const struct iphdr *ip) {
 
 void PacketProcessor::printTcpInfo(const struct tcphdr *tcp) {
     // Получаем длину TCP заголовка (data_offset в 32-битных словах)
-    uint8_t tcp_header_len = (tcp->doff >> 4) * 4;
+    uint8_t tcp_header_len = tcp->doff * 4;
 
     std::cout << "[L4] TCP: sport = " << ntohs(tcp->source)
               << ", dport = " << ntohs(tcp->dest)
@@ -59,7 +57,7 @@ void PacketProcessor::printPacketCaptureTime(const struct pcap_pkthdr *header) {
     strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", tm_info);
 
     // Выводим информацию о пакете
-    printf("Время захвата: %s.%06ld\n", time_str, header->ts.tv_usec);
+    printf("Capture time: %s.%06ld\n", time_str, header->ts.tv_usec);
 }
 
 void PacketProcessor::handler(uint8_t *user, const struct pcap_pkthdr *header, const uint8_t *packet) {
@@ -68,7 +66,7 @@ void PacketProcessor::handler(uint8_t *user, const struct pcap_pkthdr *header, c
 
     switch (ntohs(eth->ether_type)) {
         case ETHERTYPE_IP: {
-            const struct iphdr *ip = reinterpret_cast<const iphdr *>(packet + sizeof(EthernetHeader));
+            const struct iphdr *ip = reinterpret_cast<const iphdr *>(packet + sizeof(ether_header));
             printIpInfo(ip);
 
             switch (ip->protocol) {
@@ -102,5 +100,3 @@ void PacketProcessor::handler(uint8_t *user, const struct pcap_pkthdr *header, c
     // Выводим время захвата пакета
     printPacketCaptureTime(header);
 }
-
-

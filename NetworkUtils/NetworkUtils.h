@@ -1,7 +1,7 @@
 #ifndef NETWORK_UTILS_H
 #define NETWORK_UTILS_H
 
-#include "../Headers.h"
+#include "Headers.h"
 
 
 namespace utils {
@@ -9,7 +9,6 @@ namespace utils {
     std::vector<std::string> getAvailableInterfaces();
     void printInterfaces(const std::vector<std::string>& interfaces);
     std::string ipToString(uint32_t ip);
-    void printMacAddress(const uint8_t* mac);
     std::string macToString(const uint8_t* mac);
 
 } // namespace utils

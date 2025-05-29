@@ -1,5 +1,5 @@
 #include "CommutationTable.h"
-#include "NetworkUtils.h"
+#include "NetworkUtils/NetworkUtils.h"
 #include "config_parser.h"
 
 // #define DEBUG

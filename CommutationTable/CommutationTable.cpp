@@ -1,5 +1,5 @@
 #include "CommutationTable.h"
-#include "NetworkUtils.h"
+#include "NetworkUtils/NetworkUtils.h"
 
 CommutationTable::CommutationTable(int lifetime) : maxLifetimeSec_(lifetime) {}
 
