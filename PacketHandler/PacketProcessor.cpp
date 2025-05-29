@@ -15,11 +15,11 @@ void PacketProcessor::printIpInfo(const struct iphdr *ip) {
               << ", len = " << ntohs(ip->tot_len) << " bytes" << std::endl;
 }
 
-//void PacketProcessor::printIcmpInfo(const IcmpHeader *icmp, uint32_t data_size) {
-//    std::cout << "[L4] ICMP: type = " << static_cast<int>(icmp->type)
-//              << ", code = " << static_cast<int>(icmp->code)
-//              << ", size = " << data_size << " bytes" << std::endl;
-//}
+void PacketProcessor::printIcmpInfo(const icmphdr *icmp, uint32_t data_size) {
+    std::cout << "[L4] ICMP: type = " << static_cast<int>(icmp->type)
+              << ", code = " << static_cast<int>(icmp->code)
+              << ", size = " << data_size << " bytes" << std::endl;
+}
 
 void PacketProcessor::printTcpInfo(const struct tcphdr *tcp) {
     // Получаем длину TCP заголовка (data_offset в 32-битных словах)

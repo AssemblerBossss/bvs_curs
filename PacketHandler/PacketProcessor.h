@@ -51,7 +51,12 @@ public:
      */
     static void printPacketCaptureTime(const struct pcap_pkthdr* header);
 
-    //static void printIcmpInfo(const IcmpHeader* icmp, uint32_t data_size);
+    /**
+     * @brief Выводит информацию о ICMP-пакете
+     * @param icmp Указатель на ICMP-заголовок
+     * @param data_size Размер данных ICMP-сообщения (без заголовка)
+     */
+    static void printIcmpInfo(const icmphdr* icmp, uint32_t data_size);
 
 
 };
