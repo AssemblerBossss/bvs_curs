@@ -21,11 +21,8 @@ namespace utils {
             if (ifa->ifa_addr == nullptr) continue;
 
             // Проверяем тип адреса в зависимости от ОС
-#ifdef __linux__
             if (ifa->ifa_addr->sa_family == AF_PACKET) {
-#elif defined(__APPLE__)
-                if (ifa->ifa_addr->sa_family == AF_LINK) {
-#endif
+
                 // Проверяем, не добавлен ли интерфейс уже
                 bool exists = false;
                 for (const auto &name : interfaces) {
