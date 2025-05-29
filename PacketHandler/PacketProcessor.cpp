@@ -70,13 +70,13 @@ void PacketProcessor::handler(uint8_t *user, const struct pcap_pkthdr *header, c
             printIpInfo(ip);
 
             switch (ip->protocol) {
-//                case IPPROTO_ICMP: {
-//                    const IcmpHeader *icmp = reinterpret_cast<const IcmpHeader *>(packet + sizeof(EthernetHeader) +
-//                                                                                  sizeof(IpHeader));
-//                    uint32_t data_size = ntohs(ip->len) - sizeof(IpHeader) - sizeof(IcmpHeader);
-//                    printIcmpInfo(icmp, data_size);
-//                    break;
-//                }
+                case IPPROTO_ICMP: {
+                    const icmphdr *icmp = reinterpret_cast<const icmphdr *>(packet + sizeof(ether_header) +
+                                                                                  sizeof(iphdr));
+                    uint32_t data_size = ntohs(ip->tot_len) - sizeof(iphdr) - sizeof(icmphdr);
+                    printIcmpInfo(icmp, data_size);
+                    break;
+                }
                 case IPPROTO_TCP: {
                     const struct tcphdr *tcp = reinterpret_cast<const tcphdr *>(
                             packet +
