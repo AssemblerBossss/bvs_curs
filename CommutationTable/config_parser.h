@@ -8,7 +8,6 @@ struct ttl_substitution_cfg {
     bool is_active;
     struct in_addr client_ip;
     struct in_addr server_ip;
-    uint8_t max_ttl;
 };
 
 class ConfigParser {

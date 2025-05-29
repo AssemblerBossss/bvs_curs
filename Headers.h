@@ -14,6 +14,7 @@
 #include <fstream>
 #include <algorithm>
 #include <chrono>
+#include <unistd.h>
 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -22,9 +23,7 @@
 #include <netinet/tcp.h>
 #include <netinet/udp.h>
 #include <netinet/ip_icmp.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
-#include <unistd.h>
 #include <pcap.h>
 #include <iomanip>
 #include <sys/stat.h>
@@ -33,9 +32,7 @@
 #include <net/if.h>         // для struct ifreq и IFNAMSIZ
 #include <sys/types.h>
 #include <ifaddrs.h>
-#include <arpa/inet.h>
-#include <net/if.h>
-#include <unistd.h>
+
 
 
 // Общие константы
@@ -43,18 +40,6 @@ const int PORT = 3425;
 const std::string DEFAULT_IP = "127.0.0.1";
 
 #define MAC_SIZE = 6
-
-// Перечисление команд
-enum class Commands {
-    connect,
-    list,
-    upload,
-    get,
-    help,
-    exit,
-    command_error,
-    argument_error
-};
 
 // Структура для передачи данных в поток
 struct my_data {

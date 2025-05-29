@@ -82,10 +82,10 @@ bool ConfigParser::getBool(const std::string& key, bool defaultValue) const {
     std::string value = it->second;
     std::transform(value.begin(), value.end(), value.begin(), ::tolower);
 
-    if (value == "true" || value == "1" || value == "yes") {
+    if (value == "true" || value == "TRUE" || value == "1" || value == "yes" || value == "YES") {
         return true;
     }
-    if (value == "false" || value == "0" || value == "no") {
+    if (value == "false" || value == "FALSE" || value == "0" || value == "no" || value == "NO") {
         return false;
     }
 
@@ -106,9 +106,6 @@ int ConfigParser::load_ttl_config(const char* filename, ttl_substitution_cfg* cf
         }
         else if (strstr(line, "server_ip = ")) {
             inet_pton(AF_INET, strchr(line, '=') + 2, &cfg->server_ip);
-        }
-        else if (strstr(line, "max_ttl = ")) {
-            cfg->max_ttl = atoi(strchr(line, '=') + 2);
         }
 
     }
