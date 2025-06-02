@@ -16,6 +16,7 @@ endif()
 set(COMMON_INCLUDES
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/Server/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/Client/src
         ${CMAKE_CURRENT_SOURCE_DIR}/CommutationTable
         ${CMAKE_CURRENT_SOURCE_DIR}/PacketHandler
         ${CMAKE_CURRENT_SOURCE_DIR}/NetworkUtils
@@ -29,6 +30,15 @@ add_executable(server
 
 target_include_directories(server PRIVATE ${COMMON_INCLUDES})
 target_link_libraries(server PRIVATE Threads::Threads)
+
+# ============ Клиент ============
+add_executable(client
+        Client/main.cpp
+        Client/src/Client.cpp
+)
+
+target_include_directories(client PRIVATE ${COMMON_INCLUDES})
+target_link_libraries(client PRIVATE Threads::Threads)
 
 # ============ Packet Sniffer ============
 add_executable(packet_sniffer

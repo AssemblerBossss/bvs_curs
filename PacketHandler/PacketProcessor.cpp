@@ -66,14 +66,23 @@ void PacketProcessor::handler(uint8_t *user, const struct pcap_pkthdr *header, c
 
     switch (ntohs(eth->ether_type)) {
         case ETHERTYPE_IP: {
-            const struct iphdr *ip = reinterpret_cast<const iphdr *>(packet + sizeof(ether_header));
+            //const struct iphdr *ip = reinterpret_cast<const iphdr *>(packet + sizeof(ether_header));
+            //printIpInfo(ip);
+            const uint8_t *ip_packet = reinterpret_cast<const uint8_t *>(packet + sizeof(ether_header));
+            const iphdr *ip = reinterpret_cast<const iphdr *>(ip_packet);
             printIpInfo(ip);
-
             switch (ip->protocol) {
                 case IPPROTO_ICMP: {
-                    const icmphdr *icmp = reinterpret_cast<const icmphdr *>(packet + sizeof(ether_header) +
-                                                                                  sizeof(iphdr));
-                    uint32_t data_size = ntohs(ip->tot_len) - sizeof(iphdr) - sizeof(icmphdr);
+//                    const icmphdr *icmp = reinterpret_cast<const icmphdr *>(packet + sizeof(ether_header) +
+//                                                                                  sizeof(iphdr));
+//                    uint32_t data_size = ntohs(ip->tot_len) - sizeof(iphdr) - sizeof(icmphdr);
+//                    printIcmpInfo(icmp, data_size);
+//                    break;
+                    size_t ip_header_len = ip->ihl * 4;
+                    const uint8_t *icmp_packet = ip_packet + ip_header_len;
+                    const icmphdr *icmp = reinterpret_cast<const icmphdr *>(icmp_packet);
+
+                    uint32_t data_size = ntohs(ip->tot_len) - ip_header_len - sizeof(icmphdr);
                     printIcmpInfo(icmp, data_size);
                     break;
                 }
