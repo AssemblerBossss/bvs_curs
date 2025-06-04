@@ -18,7 +18,7 @@ bool is_target_icmp_packet(struct ip *ip_header, const ttl_substitution_cfg *ttl
     // Сравниваем IP-адреса
     bool src_match = (memcmp(&ip_header->ip_src, &ttl_cfg->client_ip, sizeof(struct in_addr))) == 0;
     bool dst_match = (memcmp(&ip_header->ip_dst, &ttl_cfg->server_ip, sizeof(struct in_addr))) == 0;
-
+    std::cout << std::boolalpha << src_match << "  " << dst_match;
     return (src_match && dst_match);
 }
 
@@ -41,12 +41,13 @@ void processPacket(pcap_t *handle, const u_char *packet, int port,
                    CommutationTable &table, const std::vector<pcap_t *> &handles,
                    int packetLength, const ttl_substitution_cfg *ttl_cfg) {
     auto start = std::chrono::high_resolution_clock::now();
-    const u_char *original_packet = packet;
     u_char *modified_packet = nullptr;
+    const u_char *packet_to_send = packet; // По умолчанию отправляем исходный пакет
 
-    struct ether_header *eth_header = (struct ether_header *) packet;
+    struct ether_header *eth_header = (struct ether_header *)packet;
     table.updateStats(0);
 
+    // Пропускаем пакеты с одинаковыми MAC-адресами источника и назначения
     if (memcmp(eth_header->ether_shost, eth_header->ether_dhost, 6) == 0) {
         auto end = std::chrono::high_resolution_clock::now();
         table.updateStats(std::chrono::duration<double, std::milli>(end - start).count());
@@ -57,55 +58,52 @@ void processPacket(pcap_t *handle, const u_char *packet, int port,
 
     // Обработка TTL подмены для ICMP
     if (ttl_cfg->is_active && ntohs(eth_header->ether_type) == ETHERTYPE_IP) {
-        struct ip *ip_header = (struct ip *) (packet + sizeof(struct ether_header));
+        struct ip *ip_header = (struct ip *)(packet + sizeof(struct ether_header));
 
         if (ip_header->ip_p == IPPROTO_ICMP && is_target_icmp_packet(ip_header, ttl_cfg)) {
-
-            // Получаем указатель на ICMP-заголовок
             struct icmp *icmp_header = (struct icmp *)((u_char *)ip_header + (ip_header->ip_hl << 2));
 
-            // Проверяем, является ли пакет ICMP Reply (тип 0)
             if (icmp_header->icmp_type == ICMP_ECHOREPLY) {
                 // Создаем копию пакета для модификации
                 modified_packet = new u_char[packetLength];
                 memcpy(modified_packet, packet, packetLength);
 
                 struct ip *mod_iph = reinterpret_cast<struct ip*>(
-                        modified_packet + sizeof(struct ether_header));
+                    modified_packet + sizeof(struct ether_header));
 
                 struct icmp *mod_icmp = reinterpret_cast<struct icmp*>(
-                        reinterpret_cast<uint8_t*>(mod_iph) + (mod_iph->ip_hl << 2)
-                );
+                    reinterpret_cast<uint8_t*>(mod_iph) + (mod_iph->ip_hl << 2));
 
+                // Модифицируем ICMP-заголовок
                 mod_icmp->icmp_type = ICMP_ECHO;
                 mod_icmp->icmp_code = 0;
-
-                // Пересчитываем IP checksum (для ICMP не нужно пересчитывать checksum самого ICMP)
                 mod_icmp->icmp_cksum = 0;
                 mod_icmp->icmp_cksum = checksum((uint16_t *)mod_icmp,
-                                                ntohs(mod_iph->ip_len) - (mod_iph->ip_hl << 2));
+                                              ntohs(mod_iph->ip_len) - (mod_iph->ip_hl << 2));
 
                 // Пересчитываем IP checksum
                 mod_iph->ip_sum = 0;
                 mod_iph->ip_sum = checksum((uint16_t *)mod_iph, mod_iph->ip_hl << 2);
 
-                packet = modified_packet;
+                // Указываем, что нужно отправить модифицированный пакет
+                packet_to_send = modified_packet;
             }
         }
     }
 
-    // Остальная часть функции остается без изменений
+    // Отправляем только один пакет (либо исходный, либо модифицированный)
     int dest_port = table.getPortForMac(eth_header->ether_dhost);
-    if (dest_port != -1 && dest_port < (int) handles.size()) {
-        pcap_sendpacket(handles[dest_port], packet, packetLength);
+    if (dest_port != -1 && dest_port < (int)handles.size()) {
+        pcap_sendpacket(handles[dest_port], packet_to_send, packetLength);
     } else {
         for (size_t i = 0; i < handles.size(); ++i) {
-            if (i != (size_t) port) {
-                pcap_sendpacket(handles[i], packet, packetLength);
+            if (i != (size_t)port) {
+                pcap_sendpacket(handles[i], packet_to_send, packetLength);
             }
         }
     }
 
+    // Освобождаем память, если создавали модифицированный пакет
     if (modified_packet != nullptr) {
         delete[] modified_packet;
     }
@@ -113,7 +111,6 @@ void processPacket(pcap_t *handle, const u_char *packet, int port,
     auto end = std::chrono::high_resolution_clock::now();
     table.updateStats(std::chrono::duration<double, std::milli>(end - start).count());
 }
-
 void captureThread(pcap_t *handle, int port,
                    CommutationTable &table,
                    const std::vector<pcap_t *> &handles,
