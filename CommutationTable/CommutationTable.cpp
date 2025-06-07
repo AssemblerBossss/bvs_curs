@@ -1,14 +1,28 @@
 #include "CommutationTable.h"
 #include "NetworkUtils/NetworkUtils.h"
 
+/**
+ * @brief Конструктор таблицы коммутации
+ * @param lifetime Время жизни записей в секундах
+ */
 CommutationTable::CommutationTable(int lifetime) : maxLifetimeSec_(lifetime) {}
 
+/**
+ * @brief Обновляет или добавляет запись в таблицу
+ * @param mac Указатель на MAC-адрес
+ * @param port Номер порта для обновления
+ */
 void CommutationTable::updateEntry(const u_char* mac, int port) {
     std::string macStr = utils::macToString(mac);
     std::lock_guard<std::mutex> lock(mutex_);
     macTable_[macStr] = {port, std::chrono::steady_clock::now()};
 }
 
+/**
+ * @brief Возвращает порт для указанного MAC-адреса
+ * @param mac Указатель на MAC-адрес
+ * @return Номер порта или -1 если не найден
+ */
 int CommutationTable::getPortForMac(const u_char* mac) const {
     std::string macStr = utils::macToString(mac);
     std::lock_guard<std::mutex> lock(mutex_);
@@ -16,6 +30,9 @@ int CommutationTable::getPortForMac(const u_char* mac) const {
     return it != macTable_.end() ? it->second.port : -1;
 }
 
+/**
+ * @brief Удаляет устаревшие записи из таблицы
+ */
 void CommutationTable::ageEntries() {
     auto now = std::chrono::steady_clock::now();
     std::lock_guard<std::mutex> lock(mutex_);
@@ -30,6 +47,10 @@ void CommutationTable::ageEntries() {
     }
 }
 
+/**
+ * @brief Обновляет статистику обработки пакетов
+ * @param duration Время обработки пакета в миллисекундах
+ */
 void CommutationTable::updateStats(double duration) {
     std::lock_guard<std::mutex> lock(mutex_);
     processingTimes_.push_back(duration);
@@ -39,6 +60,9 @@ void CommutationTable::updateStats(double duration) {
     totalPackets_++;
 }
 
+/**
+ * @brief Выводит текущее состояние таблицы
+ */
 void CommutationTable::printTable() const {
     std::lock_guard<std::mutex> lock(mutex_);
     std::cout << "\n=== MAC Table (" << macTable_.size() << " entries) ===" << std::endl;
@@ -56,6 +80,10 @@ void CommutationTable::printTable() const {
     std::cout << "=============================" << std::endl;
 }
 
+
+/**
+ * @brief Выводит статистику обработки пакетов
+ */
 void CommutationTable::printStats() const {
     std::lock_guard<std::mutex> lock(mutex_);
     double avg = 0;
